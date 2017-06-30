@@ -15,10 +15,17 @@
  */
 package de.olivergierke.deepdive;
 
+import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
 
 /**
  * Abstract integration test to populate the database with dummy data.
@@ -31,4 +38,14 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringApplicationConfiguration(classes = ApplicationConfig.class)
 public abstract class AbstractIntegrationTest {
 
+    @Autowired
+    DataSource dataSource;
+
+    @Before
+    public void populateDatabase()
+    {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("data.sql"));
+        DatabasePopulatorUtils.execute(populator, dataSource);
+    }
 }
